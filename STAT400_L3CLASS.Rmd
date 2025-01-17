@@ -1,0 +1,241 @@
+---
+title: "STAT 400 Notes Lecture 3"
+author: Regression Review Part 3
+output: html_document
+date: "Jan, 2025"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Front Matter - Clean Environment, Load Libraries, User Defined Functions
+Remember to install package first:
+install.packages("tidyverse")
+install.packages("lubridate")
+install.packages("ggplot2")
+haSzuc-fonbet-qavdy4
+testing
+testing again
+test hello
+test
+test
+```{r}
+rm(list = ls()) #CAUTION: command erases everything in environment
+
+#Put all library commands here
+library(tidyverse)
+
+#Read in all files here 
+derby <- read.csv(file = "https://raw.githubusercontent.com/proback/BeyondMLR/master/data/derbyplus.csv")
+```
+
+## Code from Lecture 2
+```{r}
+#Create New Variables
+derby <- derby %>% 
+            mutate(fast = ifelse(condition == "fast", 1, 0),
+                   good = ifelse(condition == "good", 1, 0),
+                   fastfactor = ifelse(condition == "fast", "fast", "not fast"),
+                   yearnew = year - 1896)
+```
+
+## Example 1a - How are the winning speeds distributed?
+```{r}
+ggplot(data = derby, 
+       mapping = aes(x = speed)) +
+  geom_histogram(color = "black", fill = "lightblue", binwidth = 0.5) +
+  labs(x = "Winning Speed",
+       y = "Number of Races")
+
+```
+
+The distribution of winning speeds appears to be left skewed. The majority of winning speeds are between 51 and 55 ft/s. 
+
+The mean winning speed is `r mean(derby$speed)`. The standard deviation of winning speeds is `r sd(derby$speed)`.
+
+## Example 1b - Are the winning speeds affected by the track condition? 
+```{r}
+ggplot(data = derby, mapping = aes(x = condition, y = speed)) +
+  geom_boxplot() +
+  labs(x = "Track Condition",
+       y = "Winning Speed in ft/s")
+
+```
+
+
+```{r}
+#Calculate summary statistics for each track condition
+derby %>%
+  group_by(condition) %>%
+  summarize(N = n(),
+            MeanSpeed = mean(speed, na.rm = TRUE),
+            MedSpeed = median(speed, na.rm = TRUE),
+            sdSpeed = sd(speed, na.rm = TRUE))
+```
+
+
+## Example 1c - What is the relationship between winning speed, year, and whether track conditions were fast?
+```{r}
+#Create coded scatterplot
+ggplot(data = derby, 
+       mapping = aes(x = year, y = speed, 
+                     color = fastfactor,
+                     shape = fastfactor)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  labs(x = "Year",
+       y = "Winning Speed in ft/s",
+       color = "Condition",
+       shape = "Condition")
+
+```
+
+```{r, eval = FALSE}
+ggplot(data = derby, 
+       mapping = aes(x = year, y = speed, 
+                     color = as.factor(fast),
+                     shape = as.factor(fast))) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  labs(x = "Year",
+       y = "Winning Speed in ft/s",
+       color = "Condition",
+       shape = "Condition")
+```
+
+
+Informal Observations:
+
+- red line is above blue. both slopes are positive. blue line has a steeper slope
+
+Formal Observations:
+
+- We expect faster winning times for fast track conditions. 
+
+- Under all track conditions, the the winning speeds are increasing over time. 
+
+- The rate of change of the speed with respect to the year (i.e., slope) is higher for good/slow conditions than fast conditions.
+
+- Since the lines are different this would suggest that track conditions should be incorporated into the model for speed.
+
+## Example 2a - Have winning speeds increased at a constant rate since 1896? 
+Write the true/population model. Define your notation.
+
+The model is given by:
+
+$$y_{i} = \beta_{0} + \beta_{1} x_{i,year} + \epsilon_{i}$$
+
+
+where 
+
+$$
+\begin{aligned}
+y_{i} &= \text{the winning speed in ft/s for the } i^{th} \text{year} \\
+x_{i,year} &= \text{year of the } i^{th} \text{race}
+\end{aligned}
+$$
+
+## Example 2b - Build Linear Regression Model
+```{r}
+#Build model
+model1 <- lm(speed ~ year, data=derby)
+
+#Summarize results
+summary(model1)
+```
+
+The estimated regression equation is given by:
+
+$$\hat{y}_{i} = 2.05 + 0.026x_{i}$$
+
+## Example 2e - Is there a statistically significant relationship between the year and the winning speed?
+
+Interpret the hypothesis test associated with the slope.
+
+1. Hypotheses
+    - Null Hypothesis: $H_0: \beta_1 = 0$
+    - Alternative Hypothesis: $H_1: \beta_1 \ne 0$
+
+\
+
+2. Test Statistic: $t=11.251$
+
+3. p-value: $p < 2.2 \times e^{-16}$
+
+4. Decision: Reject $H_0$. 
+
+5. Conclusion: There is sufficient evidence to reject that the intercept only model is sufficient. We should use the model that includes the year.
+
+## Example 2f - Confidence Interval for slope
+```{r}
+confint(model1, level = 0.95)
+```
+
+## Example 2i - What does recentering the year change?
+```{r}
+#Build model
+model1a <- lm(speed ~ yearnew, data=derby)
+
+#Summarize results
+summary(model1a)
+```
+
+## Example 2j - Inspect the assumptions
+```{r}
+par(mfrow=c(2,2)) #Tells R to display next 4 plots in 2x2 grid
+plot(model1, which = c(1, 2, 4))
+par(mfrow = c(1,1)) #Tells R to display plots in a "1x1" grid
+```
+
+
+## Example 3a - Building Models
+```{r}
+#Model1
+model1recentered <- lm(speed ~ yearnew, data=derby)
+
+#Model2
+model2 <- lm(speed ~ fast, data = derby)
+
+#Model3
+model3 <- lm(speed ~ yearnew + fast, data = derby)
+
+derby <- 
+  derby %>%
+  mutate(yearnewFast = yearnew*fast)
+#Model4
+model4 <- lm(speed ~ yearnew + fast + yearnewFast, data = derby)
+```
+
+
+
+
+## Example 3b - Comparing Models 3 and 4
+```{r}
+#Compare summaries
+summary(model3)
+summary(model4)
+
+#Significance Test
+anova(model3, model4)
+```
+
+
+## Example 3c - Confidence Intervals for Model 3
+```{r, eval = FALSE}
+#Find Confidence Interval
+confint(model3)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
