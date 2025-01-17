@@ -25,6 +25,8 @@ test 3
 new test
 
 new new test
+
+hi justin on mac!
 ```{r}
 rm(list = ls()) #CAUTION: command erases everything in environment
 
