@@ -23,6 +23,8 @@ test
 test 3
 
 new test
+
+new new test
 ```{r}
 rm(list = ls()) #CAUTION: command erases everything in environment
 
