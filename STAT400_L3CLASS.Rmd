@@ -14,21 +14,7 @@ Remember to install package first:
 install.packages("tidyverse")
 install.packages("lubridate")
 install.packages("ggplot2")
-haSzuc-fonbet-qavdy4
-testing
-testing again
-test hello
-test
-test
-test 3
 
-new test
-
-new new test
-
-hi justin on mac!
-
-hi justin on pc!
 ```{r}
 rm(list = ls()) #CAUTION: command erases everything in environment
 
