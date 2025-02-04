@@ -156,7 +156,7 @@ Interpret the hypothesis test associated with the slope.
 
 2. Test Statistic: $t=11.251$
 
-3. p-value: $p < 2.2 \times e^{-16}$
+3. p-value: $p < 2.2 \times 10^{-16}$
 
 4. Decision: Reject $H_0$. 
 

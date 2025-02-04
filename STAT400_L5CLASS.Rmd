@@ -1,0 +1,85 @@
+---
+title: "STAT 400 Notes Lecture 5"
+author: Likelihoods Part 2
+output: html_document
+date: "Jan 29, 2024"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Front Matter - Clean Environment, Load Libraries, User Defined Functions
+```{r}
+rm(list = ls())
+library(tidyverse)
+
+#Read in Real Estate data
+real.estate <- read.table(file="https://online.stat.psu.edu/onlinecourses/sites/stat501/files/data/realestate.txt",header=TRUE)
+```
+
+## Example 2a
+```{r}
+#Create New Variables, including interaction
+real.estate <- real.estate %>%
+                    mutate(log10Price = log10(SalePrice),
+                           log10SqFeet = log10(SqFeet),
+                           log10FeetPool = log10SqFeet*Pool)
+
+#Build Models
+model1 <- lm(log10Price ~ log10SqFeet + Pool + log10FeetPool, data=real.estate)
+model2 <- lm(log10Price ~ log10SqFeet, data=real.estate)
+
+#Compare Models
+anova(model2, model1)
+```
+
+1. Hypotheses
+    - Null Hypothesis: $H_0: \beta_2 = \beta_3 = 0$
+    - Alternative Hypothesis: $H_1: \beta_j \ne 0 \text{ for at least 1 } j \in \{2,3\}$
+
+\
+
+2. Test Statistic: $t=2.7086$
+
+3. p-value: $0.06757$
+
+4. Decision: Depends on $\alpha$. Using $\alpha = 0.05$, we fail to reject $H_0$. 
+
+5. Conclusion: There is not enough evidence to reject that $\beta_2 = \beta_3 = 0$. In other words, there is not enough evidence to reject that the the reduced model, which contains only the log base 10 of square feet, is sufficient.
+
+## Example 3a
+```{r}
+#Find the log likelihood for the reduced model (model2)
+logLik(model2)
+```
+
+## Example 3b
+```{r}
+#Find the log likelihood for the full model (model1)
+logLik(model1)
+```
+
+
+## Example 4
+```{r}
+#Compute LRT Test stat
+LRT_stat <- -2*(as.numeric(logLik(model2))-as.numeric(logLik(model1)))
+LRT_stat
+
+#Compute LRT p-value
+1 - pchisq(q=LRT_stat,df=2)
+```
+
+
+## Example 6
+```{r}
+#Compare models 1 and 2 using AIC
+AIC(model1) #Full
+AIC(model2) #Reduced
+
+#Compare models 1 and 2 using BIC
+BIC(model1) #Full
+BIC(model2) #Reduced
+```
+

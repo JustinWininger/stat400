@@ -1,0 +1,97 @@
+---
+title: "STAT 400 Notes Lecture 4"
+author: Likelihoods Part 1
+output: html_document
+date: "Jan 27, 2025"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Front Matter - Clean Environment, Load Libraries, User Defined Functions
+```{r}
+rm(list = ls())
+library(tidyverse)
+```
+
+## Example 3 Part b
+```{r, warning = F}
+pb <- seq(0,1,length=1001)   # possible values for prob a boy is born 0, 0.001, ...
+lik <- pb^2 * (1-pb)       # likelihood of getting observed data
+GBBdf <- data.frame(pb,lik)
+GBBplot<- ggplot(data=GBBdf, mapping = aes(x = pb, y = lik)) + 
+  geom_line(color = "blue", linewidth = 2) + 
+  xlab("possible values of pb") + ylab("Likelihood") +
+  geom_segment(aes(x = .30, y = 0, xend = .30, yend = .063), linetype = "dotted") +
+  geom_segment(aes(x = 0, y = .063, xend = .30, yend = .063), linetype = "dotted") +
+  geom_segment(aes(x = .60, y = 0, xend = .60, yend = .144), linetype = "dotted") +
+  geom_segment(aes(x = 0, y = .144, xend = .60, yend = .144), linetype = "dotted") +
+  annotate("text", x = .30, y = -0.01, label= "0.30") + 
+  annotate("text", x = .60, y = -0.01, label= "0.60") + 
+  annotate("text", x = -0.05, y = .063, label= ".063") + 
+  annotate("text", x = -0.05, y = .144, label= ".144")  
+
+GBBplot
+```
+
+## Example 3 Part c
+```{r}
+pb <- seq(0,1,length=1001)   # possible values for prob a boy is born 0, 0.001, ...
+lik <- pb^2 * (1-pb)^4       # likelihood of getting observed data
+Ex3cdf <- data.frame(pb,lik)
+
+Ex3cplot<- ggplot(data=Ex3cdf, mapping = aes(x = pb, y = lik)) + 
+  geom_line(color = "blue", linewidth = 2) + 
+  xlab("possible values of pb") + ylab("Likelihood") 
+
+Ex3cplot
+```
+
+
+## Example 3 Part e
+```{r}
+pb <- seq(0,1,length=1001)   # possible values for prob a boy is born 0, 0.001, ...
+lik <- pb^30 * (1-pb)^20       # likelihood of getting observed data
+Ex3edf <- data.frame(pb,lik)
+
+Ex3eplot<- ggplot(data=Ex3edf, mapping = aes(x = pb, y = lik)) + 
+  geom_line(color = "blue", linewidth = 2) + 
+  xlab("possible values of pb") + ylab("Likelihood") 
+
+Ex3eplot
+```
+
+
+## Example 3 Part f
+```{r}
+pb <- seq(0,1,length=1001)   # possible values for prob a boy is born 0, 0.001, ...
+lik <- pb^600 * (1-pb)^400       # likelihood of getting observed data
+Ex3fdf <- data.frame(pb,lik)
+
+Ex3fplot<- ggplot(data=Ex3fdf, mapping = aes(x = pb, y = lik)) + 
+  geom_line(color = "blue", linewidth = 2) + 
+  xlab("possible values of pb") + ylab("Likelihood") 
+
+Ex3fplot
+```
+
+## Example 3 Part g
+```{r}
+pb <- seq(0,1,length=1001)   # possible values for prob a boy is born 0, 0.001, ...
+lik <- pb^6000 * (1-pb)^4000       # likelihood of getting observed data
+Ex3gdf <- data.frame(pb,lik)
+
+Ex3gplot<- ggplot(data=Ex3gdf, mapping = aes(x = pb, y = lik)) + 
+  geom_line(color = "blue", linewidth = 2) + 
+  xlab("possible values of pb") + ylab("Likelihood") 
+
+Ex3gplot
+```
+
+## Example 5
+```{r}
+Lik.f <- function(pb, nboy, ngirl){
+    return(pb^nboy * (1-pb)^ngirl)
+  }
+optimize(Lik.f, nboy=30, ngirl=20, interval=c(0,1), maximum=TRUE)
+```

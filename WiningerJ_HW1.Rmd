@@ -38,6 +38,16 @@ bankSalary <- bankSalary %>% mutate(
 bankSalary$bsal <- as.integer(bankSalary$bsal)
 
 bankSalary %>% group_by(sex) %>% summarize(mean = round(mean(bsal), digits=0))
+
+aov <- aov(bsal~sex, data = bankSalary)
+
+anova(aov)
+
+lm <- lm(bsal~sex, data = bankSalary)
+
+summary(lm)
+
+t.test(bsal~sex, data = bankSalary)
 ```
 
 The mean salaries are correct, but this is not enough information to conclude that gender discrimination exists. To make that conclusion, I would need the p-value from a t-test. 
