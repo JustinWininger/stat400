@@ -1,0 +1,48 @@
+---
+title: "STAT 400 Notes Lecture 9"
+author: Poisson Regression Part 4
+output: html_document
+date: "Feb 10, 2025"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Front Matter - Clean Environment, Load Libraries, User Defined Functions
+```{r}
+rm(list = ls())
+library(tidyverse)
+```
+
+## Preliminaries
+```{r}
+#Read in the data
+c.data <- read.csv(file = "https://raw.githubusercontent.com/proback/BeyondMLR/master/data/c_data.csv")
+
+#Textbook authors did some data cleaning by combining SW and SE into S and 
+#removing extreme observations nv rate of 5 or higher
+c.data <- c.data %>%
+  mutate(region = fct_recode(region, 
+                                     "S" = "SW", "S"="SE"))
+
+c.data <- c.data %>% 
+  filter(nvrate<5)
+
+#Build model with offset
+modeltr <- glm(nv ~ type + region, 
+               family = poisson, 
+               offset = log(enroll1000), 
+               data = c.data)
+summary(modeltr)
+```
+
+## Example 1e
+```{r}
+#Use type = "response" to get R to do exponentiation for you
+predict(modeltr, newdata = data.frame(type = "U", region = "NE", enroll1000 = 10), type = "response")
+
+#OR, exponentiate yourself
+exp(predict(modeltr, newdata = data.frame(type = "U", region = "NE", enroll1000 = 10)))
+```
+
+

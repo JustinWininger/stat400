@@ -1,0 +1,66 @@
+---
+title: "STAT 400 Notes Lecture 8"
+author: Poisson Regression Part 3
+output: html_document
+date: "Feb. 10, 2025"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Front Matter - Clean Environment, Load Libraries, User Defined Functions
+```{r}
+rm(list = ls())
+library(tidyverse)
+```
+
+## Preliminaries
+```{r}
+#Read in Data from Roback's github
+fHH1 <- read.csv(file = "https://raw.githubusercontent.com/proback/BeyondMLR/master/data/fHH1.csv")
+
+#Create ag2 (age squared)
+fHH1 <- 
+  fHH1 %>%
+  mutate(age2 = age^2)
+```
+
+## Example 1
+```{r}
+#Build model using age and age^2
+model2 <- glm(total ~ age + age2, 
+              family = "poisson",
+              data = fHH1)
+
+#Display a summary of the model
+summary(model2)
+
+#Pearson goodness of fit test
+#Calculate the test statistic
+X2 <- sum(residuals(model2, type = "pearson")^2)
+X2
+
+#The X2 test statistic follows a chi-square distribution with n-p DF = 1500 - 3
+model2$df.residual #1497
+
+#Calculate the p-value
+1 - pchisq(q=X2, df = model2$df.residual)
+```
+
+## Example 2
+```{r}
+phiHat <- X2/model2$df.residual
+```
+
+## Example 3
+```{r, eval = FALSE}
+model2q <- glm(total ~ age + age2, family = quasipoisson, data = fHH1)
+summary(model2q)
+```
+
+
+## Example 4
+```{r, eval = FALSE}
+summary(model2)
+```

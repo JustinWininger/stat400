@@ -1,0 +1,83 @@
+---
+title: "STAT 400 Lecture 10 - Logistic Regression Part 1"
+output: html_document
+date: "Feb 17, 2025"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Front Matter
+```{r}
+remove(list = ls())
+library(tidyverse)
+```
+
+## Example 4a
+```{r}
+titanic <- read.csv("L10_titanic3.csv")
+```
+
+#### Build Incorrect Model
+```{r, error = TRUE}
+#Build Model
+model1 <- glm(Survived ~ Age, family = binomial, data = titanic)
+
+#Display summary of model
+summary(model1)
+```
+
+#### Solution 1 - Convert Survived to a factor
+```{r}
+#Build Model
+model1 <- glm(as.factor(Survived) ~ Age, family = binomial, data = titanic)
+
+#Display summary of model
+summary(model1)
+```
+
+#### Solution 2 - Convert Survived to 0/1 Indicator
+```{r}
+#Create Indicator
+titanic <- 
+  titanic %>%
+  mutate(SurvivedNum = ifelse(Survived == "Yes", 1, 0))
+
+titanic$SurvivedNum <- ifelse(titanic$Survived == "Yes", 1, 0)
+
+#Build Model
+model1 <- glm(SurvivedNum ~ Age, family = binomial, data = titanic)
+
+#Display summary of model
+summary(model1)
+```
+
+## Example 4 Part b - Convert Survived Values to "Did" and "Did Not"
+```{r}
+#Create New Variable 
+titanic <-
+  titanic %>%
+  mutate(Survived2 = ifelse(Survived == "Yes", "Did", "Did Not"))
+
+#Build Model on New Variable using as.factor()
+model1b <- glm(as.factor(Survived2) ~ Age, family = binomial, data = titanic)
+
+#Display a summary
+summary(model1b)
+```
+
+#### Part e. - Predict
+```{r}
+logitPred <- predict(model1, newdata = data.frame(Age = 35)) #Gives linear predictor or logit
+
+#Calculate Probability
+exp(logitPred)/ (1 + exp(logitPred)) #Gives 0.3737 which is the predicted prob of surviving
+
+#Easier Probably Calculation
+predict(model1, newdata = data.frame(Age = 35), type = "response")
+```
+
+
+
+

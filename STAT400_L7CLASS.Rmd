@@ -1,0 +1,89 @@
+---
+title: "STAT 400 Notes Lecture 7"
+author: Poisson Regression Part 1
+output: html_document
+date: "Jan 29, 2024"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Front Matter - Clean Environment, Load Libraries, User Defined Functions
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(lmtest)
+
+#Read in Data from Roback's github
+fHH1 <- read.csv(file = "https://raw.githubusercontent.com/proback/BeyondMLR/master/data/fHH1.csv")
+```
+
+## Preliminaries
+```{r}
+model1 = glm(total ~ age, family = poisson, data = fHH1)
+summary(model1)
+```
+
+## Example 1a
+```{r}
+model1$fitted.values[1] #transform linear predictor using inverse of link
+```
+
+## Example 1b
+```{r}
+predict(model1, newdata = data.frame(age = 65)) #Linear predictor of log mean
+
+exp(predict(model1, newdata = data.frame(age = 65))) #Predictor of mean
+```
+
+## Example 1b
+```{r}
+#To directly get the exponentiated prediction
+predict(model1, newdata = data.frame(age = 65), type = "response")
+```
+
+
+## Example 2
+```{r}
+model1 = glm(total ~ age, family = poisson, data = fHH1)
+summary(model1)
+
+#Verify residaul deviance
+sum(residuals(model1, type = "deviance")^2)
+```
+
+
+## Example 3a
+```{r}
+#Build model and with age and age^2
+#Create variable called ag2 = age^2
+fHH1 <- 
+  fHH1 %>%
+  mutate(age2 = age^2)
+
+model2 <- glm(total ~ age + age2, family = "poisson", data = fHH1)
+summary(model2)
+
+#Calculate the drop-in-deviance
+dropDev <- model1$deviance - model2$deviance
+
+#Calculate p-value
+1 - pchisq(dropDev, df = 1)
+```
+
+## Example 3b
+```{r}
+anova(model1, model2, test = "Chisq")
+```
+
+## Example 3c
+```{r}
+lrtest(model1, model2) #Requires lmtest package
+```
+
+
+
+
+
+
